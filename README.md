@@ -1,5 +1,6 @@
 # Jacobi-NeRF: NeRF Shaping with Mutual Information Gradient
 Xiaomeng Xu, Yanchao Yang, Kaichun Mo, Boxiao Pan, Li Yi, Leonidas Guibas
+CVPR 2023
 
 ### Dependencies
 Main python dependencies are listed below:
@@ -46,6 +47,9 @@ python main.py --config_file ./configs/replica_room0_config.yaml --sparse_views 
 ```
 python main.py --config_file ./configs/replica_room0_config.yaml --sparse_views --sparse_ratio 0.995 --propagate_2d --ckpt_path [J-NeRF ckpt path] --save_dir [save_dir] --rgb_layer --adaptive_selection --num_comb 20 --num_iters 5 --train_agg
 ```
+
+## Acknowledgements
+Thanks [nerf](https://github.com/bmild/nerf), [nerf-pytorch](https://github.com/yenchenlin/nerf-pytorch) and [Semantic-NeRF](https://github.com/Harry-Zhi/semantic_nerf) for nice implementation of NeRF and scripts in processing datasets.
 
 ## Contact
 If you have any questions, please contact xiaomengxu0830@gmail.com.
