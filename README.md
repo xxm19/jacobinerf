@@ -1,5 +1,6 @@
 # Jacobi-NeRF: NeRF Shaping with Mutual Information Gradient
 Xiaomeng Xu, Yanchao Yang, Kaichun Mo, Boxiao Pan, Li Yi, Leonidas Guibas
+
 CVPR 2023
 
 ### Dependencies
