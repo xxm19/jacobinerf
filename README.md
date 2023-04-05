@@ -1,7 +1,8 @@
-# Jacobi-NeRF: NeRF Shaping with Mutual Information Gradient
-Xiaomeng Xu, Yanchao Yang, Kaichun Mo, Boxiao Pan, Li Yi, Leonidas Guibas
+# JacobiNeRF: NeRF Shaping with Mutual Information Gradient
 
-CVPR 2023
+### [Paper](https://arxiv.org/abs/2304.00341) (CVPR 2023)
+[Xiaomeng Xu](https://xxm19.github.io/), [Yanchao Yang](https://yanchaoyang.github.io/), [Kaichun Mo](https://kaichun-mo.github.io/), [Boxiao Pan](https://cs.stanford.edu/~bxpan/), [Li Yi](https://ericyi.github.io/), [Leonidas Guibas](https://geometry.stanford.edu/member/guibas/)
+
 
 ### Dependencies
 Main python dependencies are listed below:
