@@ -1,7 +1,7 @@
 experiment:
   scene_file: "/nas/xxm/replica_v1/room_0/habitat/" # room_0,room_01, etc.
   save_dir: "/nas/xxm/semantic_nerf_result/no_semantic/"  # where to store ckpts and rendering
-  dataset_dir: "/nas/xxm/Replica_Dataset/room_0/Sequence_1/"
+  dataset_dir: "/nas/xxm/Replica_Dataset/room_0/Sequence_1/"  # main dataset directory
   ckpt_path: None
   convention: "opencv"
   width: 320
@@ -38,11 +38,11 @@ render:
 train:
     lrate: 5e-4
     lrate_decay: 250e3
-    N_iters: 200000
+    N_iters: 200000   # training iterations
 
 logging: # logging/saving options
     step_log_print: 1  # 'frequency of console print'
     step_log_tfb: 1
-    step_save_ckpt: 100
-    step_val: 200000 # frequency of rendering on unseen data
-    step_vis_train: 200000
+    step_save_ckpt: 100   # frequency of saving training checkpoints
+    step_val: 5000  # frequency of rendering on unseen data
+    step_vis_train: 5000  # frequency of rendering on training data
