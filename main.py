@@ -20,10 +20,10 @@ def train():
     parser.add_argument('--test_instance', action='store_true', help='whether use instance label from scannet')
     parser.add_argument('--training_mode', action='store_true', help='do not load test images')
     parser.add_argument('--resume', action='store_true', help='resume training')
-    parser.add_argument('--save_dir', type=str, default="")
-    parser.add_argument('--ckpt_path', type=str, default=None)
-    parser.add_argument('--render_only', action='store_true')
-    parser.add_argument('--no_batching', action='store_true', default=False)
+    parser.add_argument('--save_dir', type=str, default="", help='directory to save checkpoints and results')
+    parser.add_argument('--ckpt_path', type=str, default=None, help='checkpoint path to load from')
+    parser.add_argument('--render_only', action='store_true', help='whether go to render only short-cut')
+    parser.add_argument('--no_batching', action='store_true', default=False, help='whether sample pixels from multi-view images for training')
     parser.add_argument('--dataset_type', type=str, default="replica", choices= ["replica", "scannet"], help='the dataset to be used,')
     parser.add_argument('--lrate', type=float, default=5e-4)
     parser.add_argument('--lrate_decay', type=int, default=250e3)
@@ -37,15 +37,15 @@ def train():
     parser.add_argument('--load_dino', action='store_true')
     parser.add_argument('--load_lseg', action='store_true')
     parser.add_argument('--high_res_dino', action='store_true')
-    parser.add_argument('--feature_dim', type=int, default=384)
-    parser.add_argument('--load_on_cpu', action='store_true', default=False)
+    parser.add_argument('--feature_dim', type=int, default=384, help='deature dimension, 384 for DINO-vit8')
+    parser.add_argument('--load_on_cpu', action='store_true', default=False, help='whether to load data onto cpu first to avoid OOM')
 
     # J-NeRF finetuning
-    parser.add_argument('--contrastive_2d', action='store_true')
-    parser.add_argument('--contrastive_abs', action='store_true')
-    parser.add_argument('--contrastive_3d', action='store_true')
-    parser.add_argument('--wgt_contrastive', type=float, default=0.1)
-    parser.add_argument('--wgt_gradient', type=float, default=0.1)
+    parser.add_argument('--contrastive_2d', action='store_true', help='whether to use gradient contrastive training, needed for jnerf finetuning')
+    parser.add_argument('--contrastive_abs', action='store_true', help='whether to use absolute value of gradient')
+    parser.add_argument('--contrastive_3d', action='store_true', help='whether to use color gradients of 3d points for contrastive training')
+    parser.add_argument('--wgt_contrastive', type=float, default=0.1, help='weight of contrastive loss')
+    parser.add_argument('--wgt_gradient', type=float, default=0.1, help='weight of gradient normalization loss')
     parser.add_argument('--contrastive_step', type=int, default=5000)
     parser.add_argument('--contrastive_starting_step', type=int, default=10000)
     parser.add_argument('--spatial', action='store_true')
@@ -67,7 +67,7 @@ def train():
     parser.add_argument('--render_nocs', action='store_true')
 
     # which subset of parameters to shape
-    parser.add_argument('--rgb_layer', action='store_true')
+    parser.add_argument('--rgb_layer', action='store_true', help='we use rgb layer')
     parser.add_argument('--rgb_pts_layer', action='store_true')
     parser.add_argument('--density_layer', action='store_true')
     parser.add_argument('--pts_layer', action='store_true')
@@ -126,9 +126,8 @@ def train():
     parser.add_argument('--load_saved',  action='store_true', help='use trained noisy labels for training to ensure consistency betwwen experiments')
     parser.add_argument('--gpu', type=str, default="", help='GPU IDs.')
 
-    # visualizations, not important
+    # test-time random perturbation visualization
     parser.add_argument('--perturb_gradient', action='store_true')
-    parser.add_argument('--visualize_sample', action='store_true')
 
     args = parser.parse_args()
     # Read YAML file
@@ -142,12 +141,14 @@ def train():
     config["train"].update(vars(args))
     config["render"].update(vars(args))
 
-    # Cast intrinsics to right types
+    # initialize nerf trainer
     nerf_trainer = trainer.Trainer(config)
-  
+
+    # Load dataset
     if args.dataset_type == "replica":
         print("----- Replica Dataset -----")
-        total_num = 900
+        # set train and test images indices
+        total_num = 900     # total number of images
         step = 5
         train_ids = list(range(0, total_num, step))
         test_ids = [x+step//2 for x in train_ids]
@@ -155,11 +156,14 @@ def train():
             test_ids = [0]
         config["experiment"]["train_ids"] = train_ids
         config["experiment"]["test_ids"] = test_ids
+
+        # load the data
         replica_data_loader = replica_datasets.ReplicaDatasetCache(data_dir=config["experiment"]["dataset_dir"],
                                                                     train_ids=train_ids, test_ids=test_ids,
                                                                     img_h=config["experiment"]["height"],
                                                                     img_w=config["experiment"]["width"], enable_fea=args.load_dino, fea_dim=config["experiment"]["feature_dim"], high_res_dino=args.high_res_dino, enable_lseg=args.load_lseg)
         print("--------------------")
+        # sample sparse labels under test-time label propagation settings
         if args.label_propagation:
             if args.sparse_views: # add view-point sampling to partial sampling
                 print("Sparse Viewing Labels Mode under ***Patial Labelling***! Sparse Ratio is ", args.sparse_ratio)
@@ -184,6 +188,8 @@ def train():
 
         else:
             print("Standard setup with full dense supervision.")
+
+        # prepare nerf trainer's data
         nerf_trainer.set_params_replica()
         nerf_trainer.prepare_data_replica(replica_data_loader)
 
@@ -223,6 +229,7 @@ def train():
         print('done')
         return
 
+    # short-cut for test-time label propagation (3D)
     if args.propagate_3d and args.ckpt_path is not None:
         sem_train, sem, mask, points_label, jacobian_train, agg = nerf_trainer.get_given_labels_jacobians()
         tree = jacobian_train
@@ -239,11 +246,13 @@ def train():
             nerf_trainer.render_propagate(tree, points_label, 'test', label_map=label_map, agg=agg)
         return
 
+    # short-cut for test time perturbation
     if args.perturb_gradient and args.ckpt_path is not None:
         print('perturb gradient!!')
         nerf_trainer.perturb_gradient_render(nerf_trainer.rays_vis, nerf_trainer.H_scaled, nerf_trainer.W_scaled, t=args.perturb_t, t_iter=args.t_iter, perturb_r=args.perturb_r, perturb_g=args.perturb_g, perturb_b=args.perturb_b)
         return
 
+    # short-cut for test-time label propagation (2D)
     if args.propagate_2d and args.ckpt_path is not None:
         sem_train, sem, mask, points_label, jacobian_train, agg_trainer = nerf_trainer.get_given_labels_jacobians()
         if args.merge_instance:
@@ -270,7 +279,6 @@ def train():
                 nerf_trainer.nerf_net_fine = net_fine_copy
                 nerf_trainer.nerf_net_coarse = net_coarse_copy
             elif args.mean_response or args.gradient_kmeans or args.adaptive_selection:
-                # TODO: mean response (before normalization) or mean logits (after normalization)
                 rgbs_difference = []
                 for g in grad:
                     net_fine_copy = copy.deepcopy(nerf_trainer.nerf_net_fine)
@@ -384,36 +392,15 @@ def train():
 
     N_iters = int(float(config["train"]["N_iters"])) + 1
     global_step = start
-    ##########################
-    if args.visualize_sample:
-        if nerf_trainer.no_batching:
-            training_vis = np.ones(nerf_trainer.num_train, nerf_trainer.H*nerf_trainer.W)
-        else:
-            training_vis = np.ones(nerf_trainer.num_train*nerf_trainer.H*nerf_trainer.W)
     print('Begin')
     #####  Training loop  #####
     for i in trange(start, N_iters):
-
         time0 = time.time()
-        if args.visualize_sample:
-            sampled_idx = nerf_trainer.step(global_step)
-            if nerf_trainer.no_batching:
-                index_batch, index_hw = sampled_idx
-                training_vis[index_batch, index_hw] = 0
-            else:
-                training_vis[sampled_idx] = 0
-        else:
-            nerf_trainer.step(global_step)
+        nerf_trainer.step(global_step)
         dt = time.time()-time0
         print()
         print("Time per step is :", dt)
         global_step += 1
-
-    if args.visualize_sample:
-        training_vis = training_vis.reshape(nerf_trainer.num_train, nerf_trainer.H, nerf_trainer.W)
-        for img_idx, img in enumerate(training_vis):
-            img = img*255
-            cv2.imwrite(os.path.join(args.save_dir, 'vis_sample_'+str(img_idx)+'.png'), img)
     print('done')
 
 if __name__=='__main__':

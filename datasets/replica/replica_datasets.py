@@ -8,16 +8,15 @@ import cv2
 import imageio
 from imgviz import label_colormap
 import sklearn.decomposition as decompose
-import clip
 
 class ReplicaDatasetCache(Dataset):
     def __init__(self, data_dir, train_ids, test_ids, img_h=None, img_w=None, enable_fea=False, fea_dim=3, high_res_dino=False, enable_lseg=False):
 
-        traj_file = os.path.join(data_dir, "traj_w_c.txt")
-        self.rgb_dir = os.path.join(data_dir, "rgb")
+        traj_file = os.path.join(data_dir, "traj_w_c.txt")      # camera parameters directory
+        self.rgb_dir = os.path.join(data_dir, "rgb")    # rgb directory
         self.depth_dir = os.path.join(data_dir, "depth")  # depth is in mm uint
-        self.semantic_class_dir = os.path.join(data_dir, "semantic_class")
-        self.semantic_instance_dir = os.path.join(data_dir, "semantic_instance")
+        self.semantic_class_dir = os.path.join(data_dir, "semantic_class")      # ground truth semantic segmentation label directory
+        self.semantic_instance_dir = os.path.join(data_dir, "semantic_instance")    # ground truth instance segmentation label directory (can be none)
         self.enable_fea = enable_fea
         self.enable_lseg = enable_lseg
         if high_res_dino:

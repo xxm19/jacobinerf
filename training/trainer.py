@@ -1174,11 +1174,6 @@ class Trainer(object):
             else:
                 sampled_rays, sampled_gt_rgb, index_hw = sampled_data
 
-        if self.config['experiment']['visualize_sample']:
-            if self.no_batching:
-                return index_batch, index_hw
-            else:
-                return index_hw
         output_dict, sampled_pts, z_vals = self.render_rays(sampled_rays, get_sampled_pts=True)
 
         rgb_coarse = output_dict["rgb_coarse"]  # N_rays x 3
