@@ -1,6 +1,6 @@
 # JacobiNeRF: NeRF Shaping with Mutual Information Gradient
 
-### [Paper](https://arxiv.org/abs/2304.00341) (CVPR 2023) | [Video](https://www.youtube.com/watch?v=uKU9UdVL6GQ)
+### [Paper](https://arxiv.org/abs/2304.00341) (CVPR 2023) | [Project Page](https://xxm19.github.io/jnerf/) | [Video](https://www.youtube.com/watch?v=uKU9UdVL6GQ)
 [Xiaomeng Xu](https://xxm19.github.io/), [Yanchao Yang](https://yanchaoyang.github.io/), [Kaichun Mo](https://kaichun-mo.github.io/), [Boxiao Pan](https://cs.stanford.edu/~bxpan/), [Li Yi](https://ericyi.github.io/), [Leonidas Guibas](https://geometry.stanford.edu/member/guibas/)
 
 ### Dependencies
