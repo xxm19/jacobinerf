@@ -74,6 +74,18 @@ python main.py --config_file ./configs/replica_room0_config.yaml --sparse_views 
 ## Acknowledgements
 Thanks [nerf](https://github.com/bmild/nerf), [nerf-pytorch](https://github.com/yenchenlin/nerf-pytorch) and [Semantic-NeRF](https://github.com/Harry-Zhi/semantic_nerf) for nice implementation of NeRF and scripts in processing datasets.
 
+## Citation
+If you find JacobiNeRF useful for your work, please cite:
+```
+@inproceedings{xu2023jacobinerf,
+  title={JacobiNeRF: NeRF Shaping with Mutual Information Gradients},
+  author={Xu, Xiaomeng and Yang, Yanchao and Mo, Kaichun and Pan, Boxiao and Yi, Li and Guibas, Leonidas},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={16498--16507},
+  year={2023}
+}
+```
+
 ## Contact
 If you have any questions, please contact xiaomengxu0830@gmail.com.
 
