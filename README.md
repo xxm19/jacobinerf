@@ -27,7 +27,7 @@ python extractor.py --model dino_vits8 --load_size 360 --image_path [image_path]
 You can add a simple for loop in the [DINO repo](https://github.com/ShirAmir/dino-vit-features) to extract DINO features for all images at once.
 
 #### Dataset directory
-Set 'dataset_dir' in config_file(./configs/replica_room0_config.yaml), structured as follows.
+Set ```dataset_dir``` in config_file```./configs/replica_room0_config.yaml)```, structured as follows.
 ```
   dataset_dir
   ├── rgb 	# RGB images
@@ -40,13 +40,13 @@ Set 'dataset_dir' in config_file(./configs/replica_room0_config.yaml), structure
 ## Running code
 
 #### plain NeRF training
-- Set 'N_iters' in config_file(./configs/replica_room0_config.yaml) as 200000.
+- Set ```N_iters``` in config_file```./configs/replica_room0_config.yaml``` as 200000.
 ```
 python main.py --config_file ./configs/replica_room0_config.yaml --save_dir [save_dir] --training_mode
 ```
 
 #### Jacobi-NeRF training
-- Set 'N_iters' in config_file(./configs/replica_room0_config.yaml) as 10000.
+- Set ```N_iters``` in config_file```./configs/replica_room0_config.yaml``` as 10000.
 ```
 python main.py --config_file ./configs/replica_room0_config.yaml --load_dino --load_on_cpu --feature_dim 384 --save_dir [save dir] --ckpt_path [plain nerf ckpt path] --contrastive_2d --contrastive_starting_step 0 --contrastive_step 1 --wgt_img 1 --wgt_contrastive 1e-2 --wgt_gradient 1e-2 --rgb_layer --pos_threshold 0.8 --neg_threshold 0.8 --adaptive_threshold --gt_feature_sim --gradient_norm_loss --N_rays 64 --contrastive_abs --training_mode
 ```
